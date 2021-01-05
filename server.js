@@ -6,21 +6,19 @@ const items = require('./routes/api/items');
 
 const app = express();
 
+
 // Bodyparser Middleware
 app.use(bodyParser.json());
 
 // DB Config
 const db = require('./config/keys').mongoURI;
 
-console.log(db);
-
-// Connect to MongoDB
-mongoose
-    .connect(db)
-    .then(() => console.log('MongoDB Connected...'))
+// Connect to mongoDB
+mongoose.connect(db, { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(() => console.log('Mongo DB Connected...'))
     .catch(err => console.log(err));
 
-// Use Routes
+// use Routes
 app.use('/api/items', items);
 
 const port = process.env.PORT || 5000;
