@@ -12,50 +12,42 @@ import {
     TransitionGroup
 } from 'react-transition-group';
 
-import { v4 as uuid } from 'uuid';
+import { connect } from 'react-redux';
+import { getItems, addItem, deleteItem } from '../actions/itemActions';
+import PropTypes from 'prop-types';
 
 
 class ShoppingList extends Component {
-    
-    state = {
-        items: [
-            {id: uuid(), name: 'Eggs'},
-            {id: uuid(), name: 'Milk'},
-            {id: uuid(), name: 'Steak'},
-            {id: uuid(), name: 'Water'},
-        ]
+
+    componentDidMount(){
+        this.props.getItems();
     }
-    
-    toggle = () => {
-        this.setState({
-            isOpen: !this.state.isOpen
-        })
+
+    onDeleteClick = (id) => {
+        this.props.deleteItem(id);
     }
 
     render(){
         // destructuring
-        const {items} = this.state;
+        const {items} = this.props.item;
+        
         return(
             <Container>
+                {/*
                 <Button color="dark" style={{marginBottom: '2rem'}} onClick={() => {
                     const name = prompt('Enter Item');
                     if(name) {
-                        this.setState(state => ({
-                            items: [...state.items, { id: uuid(), name }]
-                        }));
+                        this.props.addItem(name);
                     }
                 }}>Add Item</Button>
+                */}
 
                 <ListGroup>
                     <TransitionGroup className="shopping-list">
-                        {items.map(({id, name}) => (
-                            <CSSTransition key={id} timeout={500} classNames="fade">
+                        {items.map(({_id, name}) => (
+                            <CSSTransition key={_id} timeout={500} classNames="fade">
                                 <ListGroupItem>
-                                    <Button className="remove-btn" color="danger" size="sm" onClick={() => {
-                                        this.setState(state => ({
-                                            items: state.items.filter(item => item.id !== id)
-                                        }));
-                                    }}>
+                                    <Button className="remove-btn" color="danger" size="sm" onClick={this.onDeleteClick.bind(this, _id)}>
                                         &times;
                                     </Button>
                                     {name}
@@ -70,4 +62,15 @@ class ShoppingList extends Component {
     }
 }
 
-export default ShoppingList;
+ShoppingList.propTypes = {
+    getItems: PropTypes.func.isRequired,
+    addItem: PropTypes.func.isRequired,
+    item: PropTypes.object.isRequired
+}
+
+const mapStateToProps = (state) => ({
+    item: state.item,
+    items: state.items
+});
+
+export default connect(mapStateToProps, { getItems, addItem, deleteItem })(ShoppingList);
